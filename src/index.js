@@ -98,7 +98,7 @@ function move(response, wayToGo) {
       else {
         Y -= 1;
         currentPos = DUNGEON[X][Y];
-        response.ask("You are in a, " + getNameFromPosition() + " " + Y);
+        response.ask("You are in a, " + getNameFromPosition() + " " + X + Y);
       }
       break;
     case "right":
@@ -108,29 +108,29 @@ function move(response, wayToGo) {
       else {
         Y += 1;
         currentPos = DUNGEON[X][Y];
-        response.ask("You are in a, " + getNameFromPosition() + " " + Y);
+        response.ask("You are in a, " + getNameFromPosition() + " " + X + Y);
       }
       break;
     case "forward":
-      if(X === 3) {
+      if(X === 0) {
         var something = "";
         response.ask("Sorry you can't go forward, but you can go right or left, would you like to do either of those?");
       }
       else {
-        X += 1;
+        X -= 1;
         currentPos = DUNGEON[X][Y];
-        response.ask("You are in a, " + getNameFromPosition() + " " + X);
+        response.ask("You are in a, " + getNameFromPosition() + " " + X + Y);
       }
       break;
     case "down":
-      if(X === 0) {
+      if(X === 3) {
         var something = "";
         response.ask("Sorry you can't go down, but you can go forward, right or left, which way would you like to go?");
       }
       else {
-        X -= 1;
+        X += 1;
         currentPos = DUNGEON[X][Y];
-        response.ask("You are in a, " + getNameFromPosition() + " " + X);
+        response.ask("You are in a, " + getNameFromPosition() + " " + X + Y);
       }
       break;
     default:
@@ -144,13 +144,14 @@ function getNameFromPosition() {
   var name = ""
   switch (currentPos) {
     case 0:
-      name = "Door"
+      name = "Door";
       break;
     case 1:
-      name = "Hallway"
+      name = "Hallway";
       break;
     case 2:
-      name = "Room"
+      name = "Room";
+      break;
     default:
       position
   }
