@@ -11,6 +11,9 @@ GetLeftIntent left
 GetForwardIntent go forward
 GetForwardIntent forward
 
+GetDownIntent go down
+GetDownIntent down
+
 
 AMAZON.StopIntent exit
 AMAZON.StopIntent quit
