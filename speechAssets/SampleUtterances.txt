@@ -1,7 +1,17 @@
-GetNewDungeonIntent start dungeon
-GetNewDungeonIntent start
-GetNewDungeonIntent for a dungeon
-GetNewDungeonIntent to start the game
+GetNewDungeonIntent yes
 GetNewDungeonIntent to start
-GetNewDungeonIntent start the quest
-GetNewDungeonIntent to start the quest
+GetNewDungeonIntent start
+
+GetRightIntent go right
+GetRightIntent right
+
+GetLeftIntent go left
+GetLeftIntent left
+
+GetForwardIntent go forward
+GetForwardIntent forward
+
+
+AMAZON.StopIntent exit
+AMAZON.StopIntent quit
+AMAZON.StopIntent stop

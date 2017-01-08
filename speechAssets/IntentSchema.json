@@ -4,6 +4,15 @@
       "intent": "GetNewDungeonIntent"
     },
     {
+      "intent": "GetRightIntent"
+    },
+    {
+      "intent": "GetLeftIntent"
+    },
+    {
+      "intent": "GetForwardIntent"
+    },
+    {
       "intent": "AMAZON.HelpIntent"
     },
     {

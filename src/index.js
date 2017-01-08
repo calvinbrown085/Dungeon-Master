@@ -66,8 +66,8 @@ Dungeon.prototype.intentHandlers = {
 };
 
 function handleNewDungeonRequest(response) {
-  var speechOutput = "Hello, are you ready to start the dungeon?";
-  var cardTitle = "Dungeon Start";
+  var speechOutput = "Hello, welcome to Dungeon Master, I will be your guide today, lets go!" + ", We have arrived at the dungeon, lets enter it!, You open the door and step inside, it's dark but you can still see. Which way shall we go?"
+  var cardTitle = "Which Way?"
   response.askWithCard(speechOutput, cardTitle, speechOutput);
 }
 // Create the handler that responds to the Alexa Request.
