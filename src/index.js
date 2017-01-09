@@ -9,6 +9,10 @@ var APP_ID =undefined; //OPTIONAL: replace with "amzn1.echo-sdk-ams.app.[your-un
 var ENTERDOOR = 0;
 var HALLWAY = 1;
 var ROOM = 2;
+//Things that can appear in rooms
+var MONSTER = 3;
+var CHEST = 4;
+var ROOM_LIST = [MONSTER, CHEST];
 
 
 /**
@@ -156,6 +160,12 @@ function getNameFromPosition() {
       position
   }
   return name;
+}
+
+function randomlyGenerateRoom() {
+  var roomIndex = Math.floor(Math.random() * ROOM_LIST.length);
+  var thingInRoom = ROOM_LIST[roomIndex];
+  return thingInRoom;
 }
 
 function handleNewDungeonRequest(response) {
