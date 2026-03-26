@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dungeon-Master — Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #07090f;
+      --bg2: #0d1117;
+      --surface: rgba(255,255,255,0.04);
+      --surface2: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.09);
+      --text: #e2e8f0;
+      --muted: #8892a4;
+      --accent: #818cf8;
+      --accent2: #c084fc;
+      --sidebar-w: 272px;
+      --radius: 10px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+    #progress {
+      position: fixed; top: 0; left: 0; height: 2px; z-index: 999;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 0%; transition: width 0.1s linear; pointer-events: none;
+    }
+    #bg-canvas {
+      position: fixed; inset: 0; z-index: 0;
+      pointer-events: none; opacity: 0.45;
+    }
+    #app { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: var(--sidebar-w); flex-shrink: 0;
+      position: fixed; top: 0; left: 0; bottom: 0;
+      background: rgba(10, 12, 20, 0.88);
+      backdrop-filter: blur(24px);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      overflow-y: auto; z-index: 100;
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    }
+    .sb-head {
+      display: flex; align-items: center; gap: 12px;
+      padding: 22px 20px 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    .sb-icon { font-size: 26px; }
+    .sb-label { font-size: 10px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .12em; color: var(--accent); }
+    .sb-repo { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 2px; }
+    #nav { flex: 1; padding: 14px 0; }
+    .nl {
+      display: block; padding: 5px 20px; color: var(--muted);
+      text-decoration: none; font-size: 13px; line-height: 1.4;
+      border-left: 2px solid transparent;
+      transition: color .14s, background .14s, border-color .14s;
+      cursor: pointer;
+    }
+    .nl:hover { color: var(--text); background: var(--surface); }
+    .nl.active { color: var(--accent); border-left-color: var(--accent); background: rgba(129,140,248,.08); }
+    .nl.h1 { padding-left: 20px; font-weight: 500; font-size: 13.5px; }
+    .nl.h2 { padding-left: 32px; }
+    .nl.h3 { padding-left: 44px; font-size: 12px; }
+    .sb-foot { padding: 14px 20px; border-top: 1px solid var(--border); }
+    .sb-foot a { color: var(--muted); text-decoration: none; font-size: 11.5px;
+      transition: color .14s; }
+    .sb-foot a:hover { color: var(--text); }
+
+    /* ── Main ── */
+    #main { margin-left: var(--sidebar-w); flex: 1; min-width: 0; }
+    #content { max-width: 820px; margin: 0 auto; padding: 56px 52px 120px; }
+
+    /* ── Menu toggle ── */
+    #mtoggle {
+      display: none; position: fixed; top: 14px; left: 14px;
+      z-index: 200; background: var(--surface2);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 7px 13px; border-radius: 8px; cursor: pointer; font-size: 15px;
+    }
+
+    /* ── Section animations ── */
+    .sw { opacity: 0; transform: translateY(20px);
+      transition: opacity .45s ease, transform .45s ease; }
+    .sw.visible { opacity: 1; transform: translateY(0); }
+
+    /* ── Typography ── */
+    #content h1 {
+      font-size: 2.15em; font-weight: 700; line-height: 1.2;
+      background: linear-gradient(130deg, #e2e8f0 0%, var(--accent) 55%, var(--accent2) 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text; margin: 0 0 .45em;
+    }
+    #content h2 {
+      font-size: 1.45em; font-weight: 600; color: var(--text);
+      margin: 2.2em 0 .8em; padding-bottom: .5em;
+      border-bottom: 1px solid var(--border); scroll-margin-top: 20px;
+    }
+    #content h3 {
+      font-size: 1.12em; font-weight: 600; color: var(--text);
+      margin: 1.6em 0 .5em; scroll-margin-top: 20px;
+    }
+    #content h4 { font-size: .95em; font-weight: 600; color: var(--muted); margin: 1.2em 0 .4em; }
+    #content p { margin: 0 0 1em; }
+    #content a { color: var(--accent); text-decoration: none;
+      border-bottom: 1px solid rgba(129,140,248,.3); transition: border-color .14s; }
+    #content a:hover { border-color: var(--accent); }
+    #content ul, #content ol { margin: 0 0 1em 1.6em; }
+    #content li { margin-bottom: .3em; }
+    #content hr { border: none; border-top: 1px solid var(--border); margin: 2.2em 0; }
+    #content blockquote {
+      border-left: 3px solid var(--accent); margin: 1.5em 0;
+      padding: 12px 20px; background: rgba(129,140,248,.06);
+      border-radius: 0 var(--radius) var(--radius) 0; color: var(--muted);
+    }
+
+    /* ── Tables ── */
+    #content table { width: 100%; border-collapse: collapse; margin: 1.5em 0; font-size: 13.5px; }
+    #content th {
+      background: var(--surface2); padding: 9px 14px; text-align: left;
+      font-weight: 600; font-size: 11.5px; text-transform: uppercase;
+      letter-spacing: .05em; color: var(--muted); border-bottom: 1px solid var(--border);
+    }
+    #content td { padding: 9px 14px; border-bottom: 1px solid var(--border); }
+    #content tr:last-child td { border-bottom: none; }
+    #content tr:hover td { background: var(--surface); }
+
+    /* ── Code ── */
+    #content code {
+      font-family: 'JetBrains Mono', monospace; font-size: .85em;
+      background: var(--bg2); padding: 2px 7px; border-radius: 4px;
+      border: 1px solid var(--border); color: #fca5a5;
+    }
+    #content pre { margin: 1.5em 0; border-radius: var(--radius);
+      overflow: hidden; border: 1px solid var(--border); position: relative; }
+    #content pre code { background: none; border: none; padding: 20px;
+      color: inherit; font-size: 13px; display: block; overflow-x: auto; }
+    .cpbtn {
+      position: absolute; top: 10px; right: 10px;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); padding: 3px 10px; border-radius: 6px;
+      font-size: 11px; cursor: pointer; transition: all .14s;
+      font-family: 'Inter', sans-serif;
+    }
+    .cpbtn:hover { background: var(--surface); color: var(--text); }
+
+    /* ── Mermaid ── */
+    .mermaid {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 28px; margin: 1.5em 0;
+      text-align: center; overflow-x: auto;
+    }
+    .mermaid svg { max-width: 100%; height: auto; }
+
+    /* ── Responsive ── */
+    @media (max-width: 780px) {
+      #sidebar { transform: translateX(-100%); }
+      #sidebar.open { transform: translateX(0); }
+      #main { margin-left: 0; }
+      #mtoggle { display: block; }
+      #content { padding: 58px 22px 80px; }
+    }
+  </style>
+</head>
+<body>
+<div id="progress"></div>
+<canvas id="bg-canvas"></canvas>
+<div id="app">
+  <aside id="sidebar">
+    <div class="sb-head">
+      <span class="sb-icon">⚡</span>
+      <div>
+        <div class="sb-label">ByteChef Docs</div>
+        <div class="sb-repo">Dungeon-Master</div>
+      </div>
+    </div>
+    <nav id="nav"></nav>
+    <div class="sb-foot">
+      <a href="https://github.com/calvinbrown085/Dungeon-Master" target="_blank">View on GitHub →</a>
+    </div>
+  </aside>
+  <button id="mtoggle" aria-label="Menu">☰</button>
+  <main id="main"><div id="content"></div></main>
+</div>
+
+<script>const __MD__ = "# Architecture\n\nThis project implements an Alexa skill that allows users to play a text-based dungeon exploration game. Users interact with the skill using voice commands to navigate a predefined dungeon, moving between hallways and rooms.\n\n## Architecture\n\nThe skill follows a standard Alexa Skill Kit (ASK) architecture, leveraging AWS Lambda for backend processing.\n\n```mermaid\ngraph TD\n    A[Alexa User] -- Speaks Utterance --> B(Alexa Service)\n    B -- Sends JSON Request (HTTPS POST) --> C[AWS Lambda Function]\n    C -- Invokes exports.handler --> D[src/index.js]\n    D -- Initializes & Executes --> E[Dungeon (AlexaSkill instance)]\n    E -- Delegates Request Type --> F{Request Handlers}\n    F -- LaunchRequest --> G[onLaunch (initializes game)]\n    F -- IntentRequest --> H[onIntent (routes to specific intent)]\n    H -- Calls Intent Logic --> I[Game Logic (move, handleNewDungeonRequest)]\n    I -- Constructs Response --> J(AlexaSkill Response Object)\n    J -- Sends JSON Response --> C\n    C -- Returns HTTP 200 --> B\n    B -- Speaks Output --> A\n```\n\n## Key Files\n\n*   **`src/index.js`**: The main entry point and core logic for the Alexa skill. It extends the `AlexaSkill` base class, defines the dungeon map and player's current position, and implements all custom intent handlers (e.g., `GetNewDungeonIntent`, `GetRightIntent`) that drive the game's interactions and responses.\n*   **`src/AlexaSkill.js`**: A reusable JavaScript library that serves as a base class for building Alexa skills. It provides foundational request routing (for `LaunchRequest`, `IntentRequest`, `SessionEndedRequest`) and utility methods for constructing Alexa-compatible speech and card responses.\n*   **`speechAssets/IntentSchema.json`**: Defines the JSON schema for all custom intents that the `Dungeon` skill understands, including the intent names and any associated slots. This file is crucial for Alexa to interpret user input correctly.\n*   **`speechAssets/SampleUtterances.txt`**: Contains a list of example phrases (utterances) that users can speak to invoke the various intents defined in `IntentSchema.json`. These are used to train the Alexa interaction model.\n\n## How to Run\n\nThis is an Alexa skill powered by an AWS Lambda function. To deploy and run:\n\n1.  **Set up AWS Lambda:**\n    *   Create an AWS account if you don't have one.\n    *   In the AWS Lambda console, create a new Node.js function.\n    *   Zip the contents of the `src` directory (`AlexaSkill.js` and `index.js`) and upload it as the function's code package.\n    *   Configure the handler to `index.handler`.\n2.  **Set up Alexa Skill:**\n    *   Create an Amazon Developer account if you don't have one.\n    *   In the Alexa Developer Console, create a new custom skill.\n    *   Copy the contents of `speechAssets/IntentSchema.json` into the \"JSON Editor\" under \"Interaction Model > Intents\".\n    *   Copy the contents of `speechAssets/SampleUtterances.txt` into the \"Sample Utterances\" section under \"Interaction Model > Utterances\".\n    *   Build the interaction model.\n    *   In the skill's endpoint configuration, select \"AWS Lambda ARN\" and paste the ARN of your Lambda function.\n3.  **Configure `APP_ID`**:\n    *   Retrieve the Skill ID from your Alexa skill's dashboard (e.g., `amzn1.ask.skill.[your-unique-value-here]`).\n    *   Update the `APP_ID` variable in `src/index.js` with your actual Skill ID:\n        ```javascript\n        var APP_ID = \"amzn1.ask.skill.[your-unique-value-here]\";\n        ```\n    *   Re-upload the updated `src` directory to your AWS Lambda function.\n\n## Environment Variables\n\n*   **`APP_ID`**: This is not a traditional environment variable but a constant defined within `src/index.js`. It must be set to the unique Application ID (Skill ID) assigned to your Alexa skill by the Amazon Developer Console. This ID is used to validate that incoming requests to your Lambda function originate from your specific Alexa skill.\n\n## How to Test\n\n1.  **Alexa Developer Console:**\n    *   Navigate to the \"Test\" tab in your Alexa skill's configuration within the Amazon Developer Console.\n    *   Enable testing for development.\n    *   You can type or speak sample utterances (e.g., \"Start the quest\", \"go right\") into the simulator to test the skill's responses.\n2.  **AWS Lambda Console:**\n    *   In your AWS Lambda function's console, you can configure test events that simulate Alexa requests (e.g., `LaunchRequest`, `IntentRequest`). This allows for direct testing of the Lambda function logic without going through the full Alexa service.";</script>
+<script src="https://cdn.jsdelivr.net/npm/marked@12/marked.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<script>
+(function() {
+  // ── Mermaid ──
+  mermaid.initialize({
+    startOnLoad: false, theme: 'dark',
+    themeVariables: {
+      primaryColor: '#6366f1', primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#374151', lineColor: '#6b7280',
+      background: '#0d1117', mainBkg: '#161b22',
+      nodeBorder: '#374151', fontFamily: 'Inter, sans-serif',
+      edgeLabelBackground: '#1f2937', titleColor: '#e2e8f0',
+    }
+  });
+
+  // ── marked config ──
+  marked.use({
+    renderer: (function() {
+      var r = new marked.Renderer();
+      r.code = function(code, lang) {
+        if (lang === 'mermaid') return '<div class="mermaid">' + code + '</div>';
+        var hi = (lang && hljs.getLanguage(lang))
+          ? hljs.highlight(code, { language: lang }).value
+          : hljs.highlightAuto(code).value;
+        return '<pre><code class="hljs">' + hi + '</code><button class="cpbtn" onclick="cp(this)">Copy</button></pre>';
+      };
+      return r;
+    })()
+  });
+
+  // ── Render markdown ──
+  var content = document.getElementById('content');
+  content.innerHTML = marked.parse(__MD__);
+
+  // ── Mermaid run ──
+  mermaid.run({ nodes: document.querySelectorAll('.mermaid') });
+
+  // ── Build sidebar nav ──
+  var headings = content.querySelectorAll('h1,h2,h3');
+  var nav = document.getElementById('nav');
+  var slugs = {};
+  headings.forEach(function(h) {
+    var base = h.textContent.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    slugs[base] = (slugs[base] || 0) + 1;
+    h.id = slugs[base] > 1 ? base + '-' + slugs[base] : base;
+    var a = document.createElement('a');
+    a.className = 'nl ' + h.tagName.toLowerCase();
+    a.textContent = h.textContent;
+    a.href = '#' + h.id;
+    a.onclick = function(e) { e.preventDefault(); h.scrollIntoView({ behavior: 'smooth' }); };
+    nav.appendChild(a);
+  });
+
+  // ── Wrap sections for scroll animation ──
+  var nodes = content.querySelectorAll('h1,h2,h3,p,pre,table,ul,ol,blockquote,.mermaid');
+  nodes.forEach(function(el) {
+    var w = document.createElement('div');
+    w.className = 'sw';
+    el.parentNode.insertBefore(w, el);
+    w.appendChild(el);
+  });
+
+  // ── Intersection observer ──
+  var io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+    });
+  }, { rootMargin: '0px 0px -40px 0px', threshold: 0.08 });
+  document.querySelectorAll('.sw').forEach(function(el) { io.observe(el); });
+
+  // ── Scroll: progress + active nav ──
+  var hEls = Array.prototype.slice.call(content.querySelectorAll('h1[id],h2[id],h3[id]'));
+  var navLinks = Array.prototype.slice.call(nav.querySelectorAll('.nl'));
+  var prog = document.getElementById('progress');
+  window.addEventListener('scroll', function() {
+    var pct = window.scrollY / (document.documentElement.scrollHeight - window.innerHeight) * 100;
+    prog.style.width = pct + '%';
+    var cur = '';
+    hEls.forEach(function(h) { if (h.getBoundingClientRect().top <= 80) cur = h.id; });
+    navLinks.forEach(function(a) { a.classList.toggle('active', a.getAttribute('href') === '#' + cur); });
+  }, { passive: true });
+
+  // ── Copy button ──
+  window.cp = function(btn) {
+    var code = btn.previousElementSibling.textContent;
+    navigator.clipboard.writeText(code).then(function() {
+      btn.textContent = 'Copied!';
+      setTimeout(function() { btn.textContent = 'Copy'; }, 1500);
+    });
+  };
+
+  // ── Mobile menu ──
+  var mtoggle = document.getElementById('mtoggle');
+  var sidebar = document.getElementById('sidebar');
+  mtoggle.onclick = function() { sidebar.classList.toggle('open'); };
+  document.addEventListener('click', function(e) {
+    if (!sidebar.contains(e.target) && !mtoggle.contains(e.target)) sidebar.classList.remove('open');
+  });
+
+  // ── Floating bubbles canvas ──
+  var canvas = document.getElementById('bg-canvas');
+  var ctx = canvas.getContext('2d');
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  var bubbles = [];
+  for (var i = 0; i < 22; i++) {
+    bubbles.push({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      r: Math.random() * 90 + 20,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: -(Math.random() * 0.25 + 0.08),
+      alpha: Math.random() * 0.055 + 0.015,
+      hue: Math.random() > 0.5 ? 240 : 275,
+    });
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    bubbles.forEach(function(b) {
+      var g = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+      g.addColorStop(0, 'hsla(' + b.hue + ',70%,65%,' + b.alpha + ')');
+      g.addColorStop(1, 'hsla(' + b.hue + ',70%,65%,0)');
+      ctx.beginPath();
+      ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+      ctx.fillStyle = g;
+      ctx.fill();
+      b.x += b.vx;
+      b.y += b.vy;
+      if (b.y + b.r < 0) { b.y = window.innerHeight + b.r; b.x = Math.random() * window.innerWidth; }
+      if (b.x < -b.r) b.x = window.innerWidth + b.r;
+      if (b.x > window.innerWidth + b.r) b.x = -b.r;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
